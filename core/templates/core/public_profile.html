@@ -1,0 +1,85 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ profile_user.username }}'s Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+
+    <!-- Left: Profile Info -->
+    <div class="col-md-4">
+        <div class="card p-4 text-center shadow-sm">
+            <h2>👤 {{ profile_user.username }}</h2>
+            <p class="text-muted">Member since {{ profile_user.date_joined|date:"M Y" }}</p>
+            <hr>
+            <p><strong>{{ approved_artifacts.count }}</strong> Verified Skills</p>
+        </div>
+    </div>
+
+    <!-- Right: Skill Radar Chart -->
+    <div class="col-md-8">
+        <div class="card p-4 shadow-sm">
+            <h5>🕸️ Skill Radar</h5>
+            {% if chart_labels %}
+                <canvas id="skillRadar" height="250"></canvas>
+            {% else %}
+                <p class="text-muted">No verified skills yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Verified Artifacts List -->
+<h5 class="mt-4">✅ Verified Artifacts</h5>
+{% if approved_artifacts %}
+<div class="row">
+    {% for artifact in approved_artifacts %}
+    <div class="col-md-6 mb-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <span class="badge bg-success float-end">{{ artifact.skill.name }}</span>
+                <h6 class="card-title">{{ artifact.title }}</h6>
+                <p class="text-muted small">Approved on {{ artifact.submitted_at|date:"d M Y" }}</p>
+                <a href="{{ artifact.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                    📄 View Proof
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+    <p class="text-muted">No verified artifacts to display yet.</p>
+{% endif %}
+{% endblock %}
+
+
+<!-- ── Chart.js Skill Radar ── -->
+{% block extra_js %}
+{% if chart_labels %}
+<script>
+    var ctx = document.getElementById('skillRadar').getContext('2d');
+
+    var skillRadarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: {{ chart_labels|safe }},
+            datasets: [{
+                label: '{{ profile_user.username }} — Verified Skills',
+                data:  {{ chart_data|safe }},
+                backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                borderColor:     'rgba(13, 110, 253, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(13, 110, 253, 1)'
+            }]
+        },
+        options: {
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

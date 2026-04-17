@@ -1,0 +1,42 @@
+{% extends 'core/base.html' %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-4 fw-bold">🔷 VerifyHub</h1>
+    <p class="lead text-muted">A Peer-Verified Professional Portfolio & Evidence Ledger</p>
+    <p class="col-md-6 mx-auto">
+        Don't just claim skills — <strong>prove them</strong>.
+        Upload evidence, get reviewed by peers, and build a verified professional profile.
+    </p>
+    <div class="mt-4">
+        <a href="/register/" class="btn btn-primary btn-lg me-2">Get Started</a>
+        <a href="/login/" class="btn btn-outline-secondary btn-lg">Login</a>
+    </div>
+</div>
+
+<!-- How it works -->
+<div class="row text-center mt-5">
+    <div class="col-md-4">
+        <div class="card p-4 h-100 shadow-sm">
+            <h2>📤</h2>
+            <h5>1. Upload Proof</h5>
+            <p>Submit a PDF or file as evidence for any skill you want to showcase.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-4 h-100 shadow-sm">
+            <h2>👥</h2>
+            <h5>2. Peer Review</h5>
+            <p>Verified peers in the same skill review and vote on your submission.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-4 h-100 shadow-sm">
+            <h2>✅</h2>
+            <h5>3. Get Verified</h5>
+            <p>Once approved, your skill appears on your public profile with a radar chart.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
