@@ -89,12 +89,16 @@ def upload_artifact(request):
             artifact.contributor = request.user
             artifact.status = 'pending'
             artifact.save()
-            messages.success(request, 'Artifact submitted! It is now in the review queue.')
+            # DEBUG - remove after fixing
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"DEBUG FILE URL: {artifact.file.url}")
+            logger.error(f"DEBUG STORAGE: {artifact.file.storage}")
+            messages.success(request, f"DEBUG: File saved at {artifact.file.url}")
             return redirect('dashboard')
     else:
         form = ArtifactForm()
     return render(request, 'core/upload_artifact.html', {'form': form})
-
 
 # ─────────────────────────────────────────────────────────────
 #  REVIEW QUEUE
@@ -180,7 +184,6 @@ def vote(request):
         'reject_count':  artifact.reject_count(),
         'new_status':    artifact.status,
     })
-
 # ─────────────────────────────────────────────────────────────
 #  PUBLIC PROFILE  — anyone can view a user's verified skills
 # ─────────────────────────────────────────────────────────────
