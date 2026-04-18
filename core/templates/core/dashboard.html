@@ -2,66 +2,138 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h3>👋 Welcome, {{ user.username }}</h3>
-<p class="text-muted">Manage your skill evidence and verifications.</p>
 
-<!-- Quick Actions -->
-<div class="row mb-4">
-    <div class="col">
-        <a href="/upload/" class="btn btn-success me-2">📤 Upload New Proof</a>
-        <a href="/review/" class="btn btn-outline-primary">🔍 Go to Review Queue</a>
-        <a href="/profile/{{ user.username }}/" class="btn btn-outline-dark ms-2">👤 View My Public Profile</a>
+<style>
+    .dash-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .verified-bar {
+        background: #d1fae5;
+        border: 1px solid #34d399;
+        border-radius: var(--radius);
+        padding: 0.85rem 1.1rem;
+        font-size: 1rem;
+        color: #065f46;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .verified-bar strong { font-weight: 600; }
+
+    .info-bar {
+        background: #fff3cd;
+        border: 1px solid #fcd34d;
+        border-radius: var(--radius);
+        padding: 0.85rem 1.1rem;
+        font-size: 1rem;
+        color: #7a4f00;
+        margin-bottom: 2rem;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .section-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-muted);
+    }
+
+    .table-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .file-link {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .file-link:hover { text-decoration: underline; }
+</style>
+
+<div class="dash-header">
+    <div>
+        <p class="page-subtitle">Dashboard</p>
+        <h1 class="page-title">Welcome back, {{ user.username }}</h1>
+    </div>
+    <div class="flex gap-1">
+        <a href="/upload/" class="btn btn-primary">Upload Proof</a>
+        <a href="/review/" class="btn btn-outline">Review Queue</a>
     </div>
 </div>
 
-<!-- My Verified Skills -->
 {% if my_verified_skills %}
-<div class="alert alert-success">
-    <strong>✅ You are a Verifier for:</strong>
+<div class="verified-bar">
+    <strong>Verified in:</strong>
     {% for skill in my_verified_skills %}
-        <span class="badge bg-success me-1">{{ skill.name }}</span>
+        <span class="badge badge-skill">{{ skill.name }}</span>
     {% endfor %}
-    — You can review others' pending artifacts for these skills!
+    &nbsp;— You can review others' submissions for these skills.
 </div>
 {% else %}
-<div class="alert alert-info">
-    You don't have any verified skills yet. Upload proof and get 2 peers to approve it to become a verifier!
+<div class="info-bar">
+    You don't have any verified skills yet. Upload proof and get 2 peers to approve it to become a verifier.
 </div>
 {% endif %}
 
-<!-- My Submitted Artifacts -->
-<h5 class="mt-4">📋 My Submitted Artifacts</h5>
+<div class="section-header">
+    <span class="section-title">Your Submissions</span>
+    <a href="/profile/{{ user.username }}/" class="btn btn-outline btn-sm">View Public Profile</a>
+</div>
 
 {% if my_artifacts %}
-<table class="table table-bordered table-hover bg-white">
-    <thead class="table-dark">
-        <tr>
-            <th>Skill</th>
-            <th>Title</th>
-            <th>Status</th>
-            <th>Approve Votes</th>
-            <th>Reject Votes</th>
-            <th>Submitted</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for artifact in my_artifacts %}
-        <tr>
-            <td>{{ artifact.skill.name }}</td>
-            <td>
-                <a href="{{ artifact.file.url }}" target="_blank">{{ artifact.title }}</a>
-            </td>
-            <td>
-                <span class="badge badge-{{ artifact.status }}">{{ artifact.status|upper }}</span>
-            </td>
-            <td>{{ artifact.approve_count }}</td>
-            <td>{{ artifact.reject_count }}</td>
-            <td>{{ artifact.submitted_at|date:"d M Y" }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Skill</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Approvals</th>
+                <th>Rejections</th>
+                <th>Submitted</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for artifact in my_artifacts %}
+            <tr>
+                <td><span class="badge badge-skill">{{ artifact.skill.name }}</span></td>
+                <td>
+                    <a href="{{ artifact.file.url }}" target="_blank" class="file-link">{{ artifact.title }}</a>
+                </td>
+                <td><span class="badge badge-{{ artifact.status }}">{{ artifact.status }}</span></td>
+                <td class="text-soft">{{ artifact.approve_count }}</td>
+                <td class="text-soft">{{ artifact.reject_count }}</td>
+                <td class="text-muted text-sm">{{ artifact.submitted_at|date:"d M Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% else %}
-    <p class="text-muted">You haven't uploaded any artifacts yet.</p>
+<div class="empty-state card">
+    <p style="font-size:0.95rem; font-weight:500; color:var(--ink-soft);">No submissions yet</p>
+    <p>Upload your first proof to get started.</p>
+    <a href="/upload/" class="btn btn-primary btn-sm" style="margin-top:1rem;">Upload Proof</a>
+</div>
 {% endif %}
+
 {% endblock %}

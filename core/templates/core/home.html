@@ -2,41 +2,147 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="text-center py-5">
-    <h1 class="display-4 fw-bold">🔷 VerifyHub</h1>
-    <p class="lead text-muted">A Peer-Verified Professional Portfolio & Evidence Ledger</p>
-    <p class="col-md-6 mx-auto">
-        Don't just claim skills — <strong>prove them</strong>.
-        Upload evidence, get reviewed by peers, and build a verified professional profile.
+
+<style>
+    .hero {
+        padding: 5rem 0 4rem;
+        max-width: 580px;
+    }
+
+    .hero-eyebrow {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+        background: #dff0e2;
+        padding: 0.3em 0.75em;
+        border-radius: 4px;
+        margin-bottom: 1.25rem;
+    }
+
+    .hero-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 600;
+        font-size: clamp(2.4rem, 5vw, 3.4rem);
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+        color: var(--ink);
+        margin-bottom: 1.25rem;
+    }
+
+    .hero-title em {
+        font-style: italic;
+        color: var(--accent);
+    }
+
+    .hero-desc {
+        font-size: 1.05rem;
+        color: var(--ink-soft);
+        line-height: 1.7;
+        margin-bottom: 2rem;
+        max-width: 460px;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    /* How it works */
+    .how-section {
+        padding: 3rem 0 1rem;
+        border-top: 1px solid var(--border);
+        margin-top: 2rem;
+    }
+
+    .how-label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-muted);
+        margin-bottom: 2rem;
+    }
+
+    .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .step {
+        background: var(--surface);
+        padding: 1.75rem;
+    }
+
+    .step-num {
+        font-family: 'DM Serif Display', serif;
+        font-size: 2rem;
+        color: var(--border);
+        line-height: 1;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .step h5 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+    }
+
+    .step p {
+        font-size: 0.85rem;
+        color: var(--ink-muted);
+        line-height: 1.6;
+    }
+
+    @media (max-width: 600px) {
+        .steps-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="hero">
+    <span class="hero-eyebrow">Peer-Verified Skills</span>
+    <h1 class="hero-title">
+        Don't just claim skills —<br><em>prove them.</em>
+    </h1>
+    <p class="hero-desc">
+        Upload evidence for the skills you've mastered. Verified peers review your work and vote. Build a professional profile backed by real proof.
     </p>
-    <div class="mt-4">
-        <a href="/register/" class="btn btn-primary btn-lg me-2">Get Started</a>
-        <a href="/login/" class="btn btn-outline-secondary btn-lg">Login</a>
+    <div class="hero-actions">
+        <a href="/register/" class="btn btn-primary btn-lg">Create your profile</a>
+        <a href="/login/" class="btn btn-outline btn-lg">Sign in</a>
     </div>
 </div>
 
-<!-- How it works -->
-<div class="row text-center mt-5">
-    <div class="col-md-4">
-        <div class="card p-4 h-100 shadow-sm">
-            <h2>📤</h2>
-            <h5>1. Upload Proof</h5>
+<div class="how-section">
+    <p class="how-label">How it works</p>
+    <div class="steps-grid">
+        <div class="step">
+            <span class="step-num">01</span>
+            <h5>Upload Proof</h5>
             <p>Submit a PDF or file as evidence for any skill you want to showcase.</p>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card p-4 h-100 shadow-sm">
-            <h2>👥</h2>
-            <h5>2. Peer Review</h5>
+        <div class="step">
+            <span class="step-num">02</span>
+            <h5>Peer Review</h5>
             <p>Verified peers in the same skill review and vote on your submission.</p>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card p-4 h-100 shadow-sm">
-            <h2>✅</h2>
-            <h5>3. Get Verified</h5>
+        <div class="step">
+            <span class="step-num">03</span>
+            <h5>Get Verified</h5>
             <p>Once approved, your skill appears on your public profile with a radar chart.</p>
         </div>
     </div>
 </div>
+
 {% endblock %}

@@ -2,81 +2,216 @@
 {% block title %}{{ profile_user.username }}'s Profile{% endblock %}
 
 {% block content %}
-<div class="row">
 
+<style>
+    .profile-layout {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    .profile-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.75rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .profile-avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: #dff0e2;
+        color: var(--accent);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 600;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .profile-name {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.25rem;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.25rem;
+    }
+
+    .profile-joined {
+        font-size: 0.78rem;
+        color: var(--ink-muted);
+        margin-bottom: 1.25rem;
+    }
+
+    .profile-stat {
+        padding: 0.75rem 0;
+        border-top: 1px solid var(--border);
+    }
+
+    .profile-stat-num {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.5rem;
+        color: var(--ink);
+    }
+
+    .profile-stat-label {
+        font-size: 0.75rem;
+        color: var(--ink-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    /* Chart */
+    .chart-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.75rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .chart-section-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-muted);
+        margin-bottom: 1.25rem;
+    }
+
+    /* Artifacts grid */
+    .artifacts-section { margin-top: 2rem; }
+
+    .artifacts-section-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-muted);
+        margin-bottom: 1rem;
+    }
+
+    .artifacts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .artifact-item {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .artifact-item-title {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--ink);
+        margin: 0.5rem 0 0.25rem;
+    }
+
+    .artifact-item-date {
+        font-size: 0.78rem;
+        color: var(--ink-muted);
+        margin-bottom: 0.85rem;
+    }
+
+    @media (max-width: 640px) {
+        .profile-layout { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="profile-layout">
     <!-- Left: Profile Info -->
-    <div class="col-md-4">
-        <div class="card p-4 text-center shadow-sm">
-            <h2>👤 {{ profile_user.username }}</h2>
-            <p class="text-muted">Member since {{ profile_user.date_joined|date:"M Y" }}</p>
-            <hr>
-            <p><strong>{{ approved_artifacts.count }}</strong> Verified Skills</p>
-        </div>
-    </div>
+    <div>
+        <div class="profile-card">
+            <div class="profile-avatar">
+                {{ profile_user.username|slice:":1"|upper }}
+            </div>
+            <p class="profile-name">{{ profile_user.username }}</p>
+            <p class="profile-joined">Member since {{ profile_user.date_joined|date:"F Y" }}</p>
 
-    <!-- Right: Skill Radar Chart -->
-    <div class="col-md-8">
-        <div class="card p-4 shadow-sm">
-            <h5>🕸️ Skill Radar</h5>
-            {% if chart_labels %}
-                <canvas id="skillRadar" height="250"></canvas>
-            {% else %}
-                <p class="text-muted">No verified skills yet.</p>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<!-- Verified Artifacts List -->
-<h5 class="mt-4">✅ Verified Artifacts</h5>
-{% if approved_artifacts %}
-<div class="row">
-    {% for artifact in approved_artifacts %}
-    <div class="col-md-6 mb-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <span class="badge bg-success float-end">{{ artifact.skill.name }}</span>
-                <h6 class="card-title">{{ artifact.title }}</h6>
-                <p class="text-muted small">Approved on {{ artifact.submitted_at|date:"d M Y" }}</p>
-                <a href="{{ artifact.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                    📄 View Proof
-                </a>
+            <div class="profile-stat">
+                <div class="profile-stat-num">{{ approved_artifacts.count }}</div>
+                <div class="profile-stat-label">Verified Skills</div>
             </div>
         </div>
     </div>
-    {% endfor %}
+
+    <!-- Right: Radar Chart -->
+    <div class="chart-card">
+        <p class="chart-section-title">Skill Radar</p>
+        {% if chart_labels %}
+            <canvas id="skillRadar" height="220"></canvas>
+        {% else %}
+            <div class="empty-state" style="padding:2rem 0;">
+                <p>No verified skills to display yet.</p>
+            </div>
+        {% endif %}
+    </div>
 </div>
-{% else %}
-    <p class="text-muted">No verified artifacts to display yet.</p>
-{% endif %}
+
+<!-- Verified Artifacts -->
+<div class="artifacts-section">
+    <p class="artifacts-section-title">Verified Artifacts</p>
+
+    {% if approved_artifacts %}
+    <div class="artifacts-grid">
+        {% for artifact in approved_artifacts %}
+        <div class="artifact-item">
+            <span class="badge badge-skill">{{ artifact.skill.name }}</span>
+            <p class="artifact-item-title">{{ artifact.title }}</p>
+            <p class="artifact-item-date">Approved {{ artifact.submitted_at|date:"d M Y" }}</p>
+            <a href="{{ artifact.file.url }}" target="_blank" class="btn btn-outline btn-sm">View Proof</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state card">
+        <p style="font-size:0.9rem; color:var(--ink-soft);">No verified artifacts yet.</p>
+    </div>
+    {% endif %}
+</div>
+
 {% endblock %}
 
 
-<!-- ── Chart.js Skill Radar ── -->
 {% block extra_js %}
 {% if chart_labels %}
 <script>
     var ctx = document.getElementById('skillRadar').getContext('2d');
-
-    var skillRadarChart = new Chart(ctx, {
+    new Chart(ctx, {
         type: 'radar',
         data: {
             labels: {{ chart_labels|safe }},
             datasets: [{
-                label: '{{ profile_user.username }} — Verified Skills',
+                label: '{{ profile_user.username }}',
                 data:  {{ chart_data|safe }},
-                backgroundColor: 'rgba(13, 110, 253, 0.2)',
-                borderColor:     'rgba(13, 110, 253, 1)',
+                backgroundColor: 'rgba(58,125,68, 0.12)',
+                borderColor:     'rgba(58,125,68, 0.9)',
                 borderWidth: 2,
-                pointBackgroundColor: 'rgba(13, 110, 253, 1)'
+                pointBackgroundColor: 'rgba(58,125,68, 1)',
+                pointRadius: 4,
             }]
         },
         options: {
             scales: {
                 r: {
                     beginAtZero: true,
-                    ticks: { stepSize: 1 }
+                    ticks: { stepSize: 1, font: { size: 11 } },
+                    pointLabels: { font: { size: 12, family: 'DM Sans' } },
+                    grid: { color: 'rgba(0,0,0,0.07)' },
+                    angleLines: { color: 'rgba(0,0,0,0.07)' },
                 }
+            },
+            plugins: {
+                legend: { display: false }
             }
         }
     });

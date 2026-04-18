@@ -2,102 +2,210 @@
 {% block title %}Review Queue{% endblock %}
 
 {% block content %}
-<h4>🔍 Review Queue</h4>
-<p class="text-muted">
-    These are pending artifacts submitted by others in skills where you are verified.
-    Vote to Approve or Reject. An artifact needs <strong>2 votes</strong> in the same direction to be decided.
-</p>
+
+<style>
+    .queue-header {
+        margin-bottom: 2rem;
+    }
+
+    .queue-note {
+        background: var(--paper);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 0.85rem 1.1rem;
+        font-size: 0.85rem;
+        color: var(--ink-soft);
+        margin-top: 1rem;
+        line-height: 1.6;
+    }
+
+    .artifact-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: var(--shadow-sm);
+        transition: box-shadow 0.2s;
+    }
+
+    .artifact-card:hover {
+        box-shadow: var(--shadow);
+    }
+
+    .artifact-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .artifact-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
+    }
+
+    .artifact-meta span {
+        font-size: 0.8rem;
+        color: var(--ink-muted);
+    }
+
+    .artifact-title {
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--ink);
+        margin-bottom: 0.25rem;
+    }
+
+    .vote-panel {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.6rem;
+        min-width: 200px;
+    }
+
+    .vote-counts {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        font-size: 0.8rem;
+    }
+
+    .vote-count-approve {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #34d399;
+        padding: 0.2em 0.7em;
+        border-radius: 4px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .vote-count-reject {
+        background: #fee2e2;
+        color: #7f1d1d;
+        border: 1px solid #f87171;
+        padding: 0.2em 0.7em;
+        border-radius: 4px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .vote-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .vote-status-msg {
+        font-size: 0.78rem;
+        color: var(--ink-muted);
+        text-align: right;
+        min-height: 1rem;
+    }
+
+    .dot-sep::before {
+        content: "·";
+        margin-right: 0.75rem;
+    }
+</style>
+
+<div class="queue-header">
+    <p class="page-subtitle">Review Queue</p>
+    <h1 class="page-title">Pending Artifacts</h1>
+    <div class="queue-note">
+        These are submissions by others in skills where you are verified. Cast your vote — an artifact needs <strong>2 votes</strong> in the same direction to be decided.
+    </div>
+</div>
 
 {% if pending_artifacts %}
     {% for artifact in pending_artifacts %}
-    <div class="card mb-3 shadow-sm" id="card-{{ artifact.id }}">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h5 class="card-title">{{ artifact.title }}</h5>
-                    <p class="text-muted mb-1">
-                        Skill: <strong>{{ artifact.skill.name }}</strong> &nbsp;|&nbsp;
-                        Submitted by: <strong>{{ artifact.contributor.username }}</strong> &nbsp;|&nbsp;
-                        {{ artifact.submitted_at|date:"d M Y" }}
-                    </p>
-                    <a href="{{ artifact.file.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
-                        📄 View Artifact
-                    </a>
+    <div class="artifact-card" id="card-{{ artifact.id }}">
+        <div class="artifact-top">
+            <div>
+                <p class="artifact-title">{{ artifact.title }}</p>
+                <div class="artifact-meta">
+                    <span class="badge badge-skill">{{ artifact.skill.name }}</span>
+                    <span>by <strong>{{ artifact.contributor.username }}</strong></span>
+                    <span class="dot-sep">{{ artifact.submitted_at|date:"d M Y" }}</span>
                 </div>
+                <div style="margin-top:0.85rem;">
+                    <a href="{{ artifact.file.url }}" target="_blank" class="btn btn-outline btn-sm">View File</a>
+                </div>
+            </div>
 
-                <!-- Vote Buttons -->
-                <div class="text-center ms-4" style="min-width: 180px;">
-                    <div class="mb-2">
-                        <span class="badge bg-success me-1" id="approve-{{ artifact.id }}">
-                            ✅ {{ artifact.approve_count }} Approve
-                        </span>
-                        <span class="badge bg-danger" id="reject-{{ artifact.id }}">
-                            ❌ {{ artifact.reject_count }} Reject
-                        </span>
-                    </div>
-                    <button class="btn btn-sm btn-success me-1 vote-btn"
+            <div class="vote-panel">
+                <div class="vote-counts">
+                    <span class="vote-count-approve" id="approve-{{ artifact.id }}">
+                        {{ artifact.approve_count }} approved
+                    </span>
+                    <span class="vote-count-reject" id="reject-{{ artifact.id }}">
+                        {{ artifact.reject_count }} rejected
+                    </span>
+                </div>
+                <div class="vote-actions">
+                    <button class="btn btn-success btn-sm vote-btn"
                             data-artifact="{{ artifact.id }}"
                             data-vote="approve">
-                        👍 Approve
+                        Approve
                     </button>
-                    <button class="btn btn-sm btn-danger vote-btn"
+                    <button class="btn btn-danger btn-sm vote-btn"
                             data-artifact="{{ artifact.id }}"
                             data-vote="reject">
-                        👎 Reject
+                        Reject
                     </button>
-                    <div class="small text-muted mt-1" id="status-msg-{{ artifact.id }}"></div>
                 </div>
+                <p class="vote-status-msg" id="status-msg-{{ artifact.id }}"></p>
             </div>
         </div>
     </div>
     {% endfor %}
 
 {% else %}
-    <div class="alert alert-secondary">
-        No pending artifacts to review right now. Either you are not yet verified in any skill,
-        or all current artifacts have already been decided.
-    </div>
+<div class="empty-state card">
+    <p style="font-size:0.95rem; font-weight:500; color:var(--ink-soft);">Nothing to review</p>
+    <p>Either you are not yet verified in any skill, or all current submissions have already been decided.</p>
+</div>
 {% endif %}
+
 {% endblock %}
 
 
-<!-- ── AJAX Voting with jQuery ── -->
 {% block extra_js %}
 <script>
 $(document).ready(function () {
-
     $('.vote-btn').on('click', function () {
         var artifactId = $(this).data('artifact');
         var voteValue  = $(this).data('vote');
         var csrfToken  = '{{ csrf_token }}';
 
-        // Disable both buttons for this artifact immediately to prevent double-click
         $('[data-artifact="' + artifactId + '"]').prop('disabled', true);
 
-        // Send AJAX POST to our /vote/ endpoint
         $.ajax({
             type: 'POST',
             url:  '/vote/',
             data: {
                 artifact_id: artifactId,
-                vote:        voteValue,
+                vote: voteValue,
                 csrfmiddlewaretoken: csrfToken
             },
             success: function (response) {
                 if (response.success) {
-                    // Update the vote count badges WITHOUT a page refresh
-                    $('#approve-' + artifactId).text('✅ ' + response.approve_count + ' Approve');
-                    $('#reject-'  + artifactId).text('❌ ' + response.reject_count  + ' Reject');
+                    $('#approve-' + artifactId).text(response.approve_count + ' approved');
+                    $('#reject-'  + artifactId).text(response.reject_count  + ' rejected');
 
-                    // If artifact has been decided, show a message and fade out the card
                     if (response.new_status !== 'pending') {
-                        var statusText = response.new_status === 'approved'
-                            ? '✅ Artifact APPROVED! Removing from queue...'
-                            : '❌ Artifact REJECTED. Removing from queue...';
-                        $('#status-msg-' + artifactId).text(statusText);
-                        $('#card-' + artifactId).fadeOut(2000);
+                        var msg = response.new_status === 'approved'
+                            ? 'Artifact approved — removing from queue'
+                            : 'Artifact rejected — removing from queue';
+                        $('#status-msg-' + artifactId).text(msg);
+                        $('#card-' + artifactId).delay(1500).fadeOut(600);
                     } else {
-                        $('#status-msg-' + artifactId).text('Vote recorded!');
+                        $('#status-msg-' + artifactId).text('Vote recorded');
                     }
                 } else {
                     alert('Error: ' + response.error);
@@ -110,7 +218,6 @@ $(document).ready(function () {
             }
         });
     });
-
 });
 </script>
 {% endblock %}

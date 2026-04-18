@@ -2,29 +2,71 @@
 {% block title %}Upload Proof{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow-sm p-4">
-            <h4>📤 Upload a Skill Artifact</h4>
-            <p class="text-muted">Attach a PDF or file as proof for a skill you want verified.</p>
 
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label">Skill</label>
-                    {{ form.skill }}
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Title</label>
-                    {{ form.title }}
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Upload File (PDF recommended)</label>
-                    {{ form.file }}
-                </div>
-                <button type="submit" class="btn btn-success w-100">Submit for Review</button>
-            </form>
-        </div>
+<style>
+    .upload-wrap {
+        max-width: 560px;
+        margin: 0 auto;
+    }
+
+    .upload-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 2.25rem;
+        box-shadow: var(--shadow-sm);
+        margin-top: 1.5rem;
+    }
+
+    .file-note {
+        font-size: 0.8rem;
+        color: var(--ink-muted);
+        margin-top: 0.35rem;
+    }
+</style>
+
+<div class="upload-wrap">
+    <p class="page-subtitle">Upload</p>
+    <h1 class="page-title">Submit a Skill Artifact</h1>
+
+    <div class="upload-card">
+        <p class="text-soft text-sm mb-3">
+            Attach evidence of a skill you want verified — a project, certificate, or document you're proud of.
+        </p>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label">Skill</label>
+                {{ form.skill }}
+                {% if form.skill.errors %}
+                    <p class="form-error">{{ form.skill.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Title</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <p class="form-error">{{ form.title.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">File</label>
+                {{ form.file }}
+                <p class="file-note">PDF recommended. Max file size: 10MB.</p>
+                {% if form.file.errors %}
+                    <p class="form-error">{{ form.file.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <hr class="divider">
+
+            <button type="submit" class="btn btn-primary btn-full">Submit for Review</button>
+        </form>
     </div>
 </div>
+
 {% endblock %}
