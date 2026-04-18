@@ -14,3 +14,4 @@ pytest
 pytest-django
 pytest-playwright
 playwright
+coverage==7.13.5
