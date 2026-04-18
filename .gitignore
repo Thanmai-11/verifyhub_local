@@ -11,3 +11,4 @@ coverage_report.zip
 .coverage
 mutants/
 setup.cfg
+core/snapshots/
