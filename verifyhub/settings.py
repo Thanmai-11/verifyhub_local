@@ -116,12 +116,11 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.StaticFilesStorage",
     },
 }
 
 # Required for old django-cloudinary-storage compatibility
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-
+STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
 print("CLOUDINARY CLOUD NAME:", os.getenv('CLOUDINARY_CLOUD_NAME'))
 print("STORAGES default:", STORAGES["default"]["BACKEND"])
