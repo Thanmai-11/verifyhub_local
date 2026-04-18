@@ -103,29 +103,36 @@ def upload_artifact(request):
 # ─────────────────────────────────────────────────────────────
 @login_required
 def review_queue(request):
-    # Skills where the logged-in user is verified
-    verified_skill_ids = Artifact.objects.filter(
-        contributor=request.user,
-        status='approved'
-    ).values_list('skill_id', flat=True)
-
-    # Pending artifacts in those skills, submitted by OTHERS
-    # Also exclude artifacts the current user already voted on
     already_voted = Vote.objects.filter(voter=request.user).values_list('artifact_id', flat=True)
 
-    pending_artifacts = Artifact.objects.filter(
-        skill_id__in=verified_skill_ids,
-        status='pending'
-    ).exclude(
-        contributor=request.user
-    ).exclude(
-        id__in=already_voted
-    ).order_by('submitted_at')
+    if request.user.is_superuser:
+        # Superuser can review ALL pending artifacts
+        pending_artifacts = Artifact.objects.filter(
+            status='pending'
+        ).exclude(
+            contributor=request.user
+        ).exclude(
+            id__in=already_voted
+        ).order_by('submitted_at')
+    else:
+        # Regular users can only review skills they're verified in
+        verified_skill_ids = Artifact.objects.filter(
+            contributor=request.user,
+            status='approved'
+        ).values_list('skill_id', flat=True)
+
+        pending_artifacts = Artifact.objects.filter(
+            skill_id__in=verified_skill_ids,
+            status='pending'
+        ).exclude(
+            contributor=request.user
+        ).exclude(
+            id__in=already_voted
+        ).order_by('submitted_at')
 
     return render(request, 'core/review_queue.html', {
         'pending_artifacts': pending_artifacts,
     })
-
 
 # ─────────────────────────────────────────────────────────────
 #  VOTE  (called via AJAX from the review queue page)
@@ -138,7 +145,7 @@ def vote(request):
         return JsonResponse({'success': False, 'error': 'POST required'})
 
     artifact_id = request.POST.get('artifact_id')
-    vote_value  = request.POST.get('vote')           # 'approve' or 'reject'
+    vote_value  = request.POST.get('vote')
 
     if vote_value not in ('approve', 'reject'):
         return JsonResponse({'success': False, 'error': 'Invalid vote'})
@@ -149,14 +156,22 @@ def vote(request):
     if artifact.contributor == request.user:
         return JsonResponse({'success': False, 'error': 'Cannot vote on your own artifact'})
 
-    # Create or update the vote (one vote per user per artifact)
+    # Check skill verification (superuser can skip this)
+    if not request.user.is_superuser:
+        verified_skill_ids = Artifact.objects.filter(
+            contributor=request.user,
+            status='approved'
+        ).values_list('skill_id', flat=True)
+        if artifact.skill_id not in verified_skill_ids:
+            return JsonResponse({'success': False, 'error': 'Not verified in this skill'})
+
+    # Create or update the vote
     vote_obj, created = Vote.objects.update_or_create(
         artifact=artifact,
         voter=request.user,
         defaults={'vote': vote_value}
     )
 
-    # The status is now automatically updated via signals in models.py
     artifact.refresh_from_db()
 
     return JsonResponse({
@@ -165,7 +180,6 @@ def vote(request):
         'reject_count':  artifact.reject_count(),
         'new_status':    artifact.status,
     })
-
 
 # ─────────────────────────────────────────────────────────────
 #  PUBLIC PROFILE  — anyone can view a user's verified skills
