@@ -94,7 +94,6 @@ def upload_artifact(request):
             logger = logging.getLogger(__name__)
             logger.error(f"DEBUG FILE URL: {artifact.file.url}")
             logger.error(f"DEBUG STORAGE: {artifact.file.storage}")
-            messages.success(request, f"DEBUG: File saved at {artifact.file.url}")
             return redirect('dashboard')
     else:
         form = ArtifactForm()
@@ -151,16 +150,19 @@ def vote(request):
     artifact_id = request.POST.get('artifact_id')
     vote_value  = request.POST.get('vote')
 
+    try:
+        artifact_id = int(artifact_id)
+    except (TypeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid artifact ID'})
+
     if vote_value not in ('approve', 'reject'):
         return JsonResponse({'success': False, 'error': 'Invalid vote'})
 
     artifact = get_object_or_404(Artifact, id=artifact_id)
 
-    # Prevent self-voting
     if artifact.contributor == request.user:
         return JsonResponse({'success': False, 'error': 'Cannot vote on your own artifact'})
 
-    # Check skill verification (superuser can skip this)
     if not request.user.is_superuser:
         verified_skill_ids = Artifact.objects.filter(
             contributor=request.user,
@@ -169,7 +171,6 @@ def vote(request):
         if artifact.skill_id not in verified_skill_ids:
             return JsonResponse({'success': False, 'error': 'Not verified in this skill'})
 
-    # Create or update the vote
     vote_obj, created = Vote.objects.update_or_create(
         artifact=artifact,
         voter=request.user,
