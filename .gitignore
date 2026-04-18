@@ -6,3 +6,6 @@ media/
 staticfiles/
 venv/
 .pytest_cache/
+htmlcov/
+coverage_report.zip
+.coverage
