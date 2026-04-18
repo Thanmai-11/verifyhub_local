@@ -70,8 +70,10 @@ DATABASES = {
 
 # Use PostgreSQL in production if DATABASE_URL is set
 if os.getenv('DATABASE_URL'):
-    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
-
+    DATABASES['default'] = dj_database_url.config(
+        conn_max_age=0,  # changed from 600 to 0 to prevent stale connections
+        ssl_require=True
+    )
 # Optional: Add password validation back in production
 AUTH_PASSWORD_VALIDATORS = []
 
