@@ -195,10 +195,3 @@ def public_profile(request, username):
         'chart_labels':       chart_labels,
         'chart_data':         chart_data,
     })
-
-def create_super(request):
-    from django.contrib.auth.models import User
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@example.com', 'changeme123')
-        return HttpResponse('Superuser created')
-    return HttpResponse('Already exists')

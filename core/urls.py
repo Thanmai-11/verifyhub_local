@@ -11,5 +11,4 @@ urlpatterns = [
     path('review/',               views.review_queue,    name='review_queue'),
     path('vote/',                 views.vote,            name='vote'),
     path('profile/<str:username>/', views.public_profile, name='public_profile'),
-    path('setup-admin/', views.create_super, name='create_super'),
 ]
