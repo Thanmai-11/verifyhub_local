@@ -9,3 +9,5 @@ venv/
 htmlcov/
 coverage_report.zip
 .coverage
+mutants/
+setup.cfg
