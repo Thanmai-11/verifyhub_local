@@ -120,5 +120,8 @@ STORAGES = {
     },
 }
 
+# Required for old django-cloudinary-storage compatibility
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
 print("CLOUDINARY CLOUD NAME:", os.getenv('CLOUDINARY_CLOUD_NAME'))
 print("STORAGES default:", STORAGES["default"]["BACKEND"])
