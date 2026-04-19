@@ -1,7 +1,10 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-
+from django.conf import LazySettings
+LazySettings.STATICFILES_STORAGE = property(
+    lambda self: self.STORAGES['staticfiles']['BACKEND']
+)
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
