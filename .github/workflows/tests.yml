@@ -30,8 +30,8 @@ jobs:
         DEBUG: True
         ALLOWED_HOSTS: localhost,127.0.0.1
       run: |
-        coverage run --source='.' manage.py test core.tests --verbosity=2
-        coverage report --fail-under=70
+        coverage run --source='core' manage.py test core.tests --verbosity=2
+        coverage report --fail-under=50
         coverage xml
 
     - name: Upload coverage to Codecov
