@@ -95,7 +95,6 @@ USE_CLOUDINARY = all([
     os.getenv('CLOUDINARY_API_KEY'),
     os.getenv('CLOUDINARY_API_SECRET'),
 ])
-
 if USE_CLOUDINARY:
     import cloudinary
     cloudinary.config(
@@ -113,11 +112,10 @@ if USE_CLOUDINARY:
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
         "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
 else:
-    # Local development — use local filesystem
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
     STORAGES = {
@@ -125,8 +123,6 @@ else:
             "BACKEND": "django.core.files.storage.FileSystemStorage",
         },
         "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
-# Compatibility fix for django-cloudinary-storage with Django 6
-STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
