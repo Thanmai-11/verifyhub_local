@@ -128,3 +128,5 @@ else:
             "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
+# Compatibility fix for django-cloudinary-storage with Django 6
+STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
