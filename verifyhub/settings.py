@@ -129,4 +129,4 @@ else:
         },
     }
 # Compatibility fix for django-cloudinary-storage with Django 6
-STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
+STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
