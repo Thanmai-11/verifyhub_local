@@ -24,14 +24,19 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run Django unit tests
+    - name: Run tests with coverage
       env:
         SECRET_KEY: test-secret-key-for-ci
         DEBUG: True
         ALLOWED_HOSTS: localhost,127.0.0.1
       run: |
-        python manage.py test core.tests --verbosity=2
+        coverage run --source='.' manage.py test core.tests --verbosity=2
+        coverage report --fail-under=70
+        coverage xml
 
-    - name: Upload test results
-      if: always()
-      run: echo "Tests completed"
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: false
