@@ -44,8 +44,7 @@ VerifyHub is a full-stack Django web application where professionals upload evid
 - **Peer Review System** — Verified peers vote to approve or reject submissions
 - **2-Vote Threshold** — Artifacts require 2 approvals to become verified
 - **Public Profiles** — Shareable skill profiles with interactive radar charts
-- **Skill Suggestion** — Users can suggest new skills for admin approval
-- **Admin Dashboard** — Superusers can review all pending artifacts
+- **Admin Dashboard** — Superusers can review all pending artifacts directly
 - **Cloudinary Storage** — Persistent file storage that survives redeployments
 - **Responsive UI** — Mobile-first design with hamburger navigation
 
@@ -129,9 +128,6 @@ Artifact ───────────────────────�
   │  (skill_id)                    (artifact_id, voter_id)
   ▼                                unique_together constraint
 Skill
-  │
-  ▼
-SkillSuggestion (suggested_by → User)
 ```
 
 ---
@@ -404,7 +400,7 @@ verifyhub_local/
 │   │   └── public_profile.html    # Radar chart profile
 │   ├── admin.py                   # Admin with bulk approve/reject
 │   ├── forms.py                   # Django forms
-│   ├── models.py                  # Skill, Artifact, Vote, SkillSuggestion
+│   ├── models.py                  # Skill, Artifact, Vote
 │   ├── urls.py                    # URL routing
 │   ├── views.py                   # Request handlers
 │   ├── tests.py                   # 60 unit/security/fuzzy tests
@@ -459,6 +455,7 @@ The review queue uses AJAX for voting so the page doesn't reload — approved/re
 
 ## 🔮 Future Enhancements
 
+- **Skill Suggestion** — Allow users to propose new skills for admin review and approval
 - Email notifications on artifact status change
 - LinkedIn-style endorsements
 - OAuth login (Google, GitHub)
