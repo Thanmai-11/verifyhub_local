@@ -24,7 +24,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Collect static files
-        run: python manage.py collectstatic --noinput
+        run: echo "Skipping collectstatic - handled by whitenoise at runtime"
         env:
           SECRET_KEY: "django-insecure-build-step-only"
           DEBUG: "False"
