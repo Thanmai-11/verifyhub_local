@@ -1,10 +1,7 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-from django.conf import LazySettings
-LazySettings.STATICFILES_STORAGE = property(
-    lambda self: self.STORAGES['staticfiles']['BACKEND']
-)
+
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -98,6 +95,7 @@ USE_CLOUDINARY = all([
     os.getenv('CLOUDINARY_API_KEY'),
     os.getenv('CLOUDINARY_API_SECRET'),
 ])
+
 if USE_CLOUDINARY:
     import cloudinary
     cloudinary.config(
@@ -115,10 +113,11 @@ if USE_CLOUDINARY:
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
 else:
+    # Local development — use local filesystem
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
     STORAGES = {
@@ -126,6 +125,8 @@ else:
             "BACKEND": "django.core.files.storage.FileSystemStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
+# Compatibility fix for django-cloudinary-storage with Django 6
+# STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
