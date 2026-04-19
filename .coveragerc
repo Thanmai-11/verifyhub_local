@@ -1,0 +1,9 @@
+[run]
+source = core
+omit =
+    core/test_*.py
+    core/tests.py
+    */migrations/*
+
+[report]
+fail_under = 70

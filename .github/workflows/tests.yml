@@ -30,9 +30,9 @@ jobs:
         DEBUG: True
         ALLOWED_HOSTS: localhost,127.0.0.1
       run: |
-        coverage run --source='core' manage.py test core.tests --verbosity=2
-        coverage report --fail-under=50
-        coverage xml
+        coverage run --rcfile=.coveragerc manage.py test core.tests --verbosity=2
+        coverage report --rcfile=.coveragerc
+        coverage xml --rcfile=.coveragerc
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
