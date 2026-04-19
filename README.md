@@ -204,14 +204,47 @@ CLOUDINARY_API_SECRET=your-api-secret
 | `core/tests.py` | Unit + Integration + Security + Fuzzy | 60 | Models, views, auth, CSRF, SQL injection, XSS, boundary |
 | `core/test_playwright.py` | E2E Browser (local) | 22 | Full browser automation against local server |
 | `core/test_smoke.py` | Smoke | 11 | Critical path verification |
-| `core/test_accessibility.py` | Accessibility (WCAG) | 6 | axe-core WCAG 2 AA compliance |
+| `core/test_accessibility.py` | Accessibility — local | 6 | axe-core WCAG 2 AA compliance |
+| `core/test_accessibility_production.py` | Accessibility — production | 8 | axe-core WCAG 2 AA against live Azure |
 | `core/test_compatibility.py` | Compatibility | 20 | Responsive design across viewports |
 | `core/test_visual.py` | Visual Regression | 7 | Screenshot baseline comparison |
 | `core/test_production.py` | HTTP Production | 29 | Functional + non-functional against live Azure |
 | `core/test_e2e_production.py` | E2E Production | 24 | Playwright against live Azure URL |
-| `locustfile.py` | Load Testing | — | 50 concurrent users, 0% failure rate |
+| `locustfile.py` | Load Testing — local | — | 50 concurrent users, 0% failure rate |
+| `locustfile_production.py` | Load Testing — production | — | 20 concurrent users against live Azure, 0% failure rate |
 
-**Total: 179 automated tests**
+**Total: 187 automated tests**
+
+### Production Load Test Results (Azure)
+
+Tested with 20 concurrent users at 5.8 requests/second against live Azure App Service:
+
+| Endpoint | Median (ms) | 95th percentile (ms) | Failures |
+|----------|-------------|----------------------|----------|
+| `/` | 100 | 2400 | 0 |
+| `/login/` | 100 | 2700 | 0 |
+| `/register/` | 180 | 2400 | 0 |
+| `/dashboard/` | 91 | 2200 | 0 |
+| `/profile/[nonexistent]` | 1700 | 4100 | 0 |
+| **Aggregated** | **110** | **2700** | **0 (0%)** |
+
+> 95th percentile latency is elevated due to Azure Free tier (F1) cold-start behaviour. Median response times remain under 200ms.
+
+### Production Accessibility Results (Azure)
+
+Tested against live Azure deployment using axe-core WCAG 2 AA:
+
+| Page | Critical | Serious | Moderate | Result |
+|------|----------|---------|----------|--------|
+| Home | 0 | 1 | 3 | ✅ Pass |
+| Login | 0 | 1 | 2 | ✅ Pass |
+| Register | 0 | 1 | 2 | ✅ Pass |
+| Profile | 0 | 1 | 3 | ✅ Pass |
+| HTML lang attribute | — | — | — | ✅ Pass |
+| Keyboard navigation | — | — | — | ✅ Pass |
+| Image alt text | — | — | — | ✅ Pass |
+
+> No critical violations on any page. Remaining serious/moderate issues (colour contrast, landmark regions) are tracked as future improvements.
 
 ### Code Coverage
 
@@ -239,8 +272,11 @@ python manage.py test core.tests
 python manage.py runserver &
 pytest core/test_playwright.py -v
 
-# Accessibility tests
+# Accessibility tests (local)
 pytest core/test_accessibility.py -v -s
+
+# Accessibility tests (production — against live Azure)
+pytest core/test_accessibility_production.py -v -s
 
 # Smoke tests
 pytest core/test_smoke.py -v
@@ -251,14 +287,17 @@ pytest core/test_compatibility.py -v
 # Visual regression tests
 pytest core/test_visual.py -v
 
-# Production tests (against live Azure)
+# Production HTTP tests (against live Azure)
 pytest core/test_production.py -v
 
-# E2E production tests
+# E2E production tests (against live Azure)
 pytest core/test_e2e_production.py -v
 
-# Load testing
+# Load testing (local)
 locust -f locustfile.py --host=http://127.0.0.1:8000
+
+# Load testing (production — against live Azure)
+locust -f locustfile_production.py --host=https://verifyhub-app.azurewebsites.net
 
 # Code coverage
 coverage run --source='core' manage.py test core.tests
@@ -406,10 +445,11 @@ verifyhub_local/
 │   ├── tests.py                   # 60 unit/security/fuzzy tests
 │   ├── test_playwright.py         # 22 E2E browser tests (local)
 │   ├── test_smoke.py              # 11 smoke tests
-│   ├── test_accessibility.py      # 6 WCAG accessibility tests
+│   ├── test_accessibility.py      # 6 WCAG accessibility tests (local)
+│   ├── test_accessibility_production.py  # 8 WCAG tests (live Azure)
 │   ├── test_compatibility.py      # 20 viewport/responsive tests
 │   ├── test_visual.py             # 7 visual regression tests
-│   ├── test_production.py         # 29 live production tests
+│   ├── test_production.py         # 29 live production HTTP tests
 │   └── test_e2e_production.py     # 24 E2E production tests
 ├── verifyhub/                     # Django project config
 │   ├── settings.py                # Environment-aware settings
@@ -419,7 +459,8 @@ verifyhub_local/
 ├── .github/workflows/
 │   ├── tests.yml                  # CI test + coverage pipeline
 │   └── main_verifyhub-app.yml     # Azure deploy pipeline
-├── locustfile.py                  # Load testing scenarios
+├── locustfile.py                  # Load testing — local
+├── locustfile_production.py       # Load testing — live Azure
 ├── startup.sh                     # Azure startup script
 ├── build.sh                       # Render build script
 ├── requirements.txt               # Python dependencies
@@ -450,12 +491,14 @@ The review queue uses AJAX for voting so the page doesn't reload — approved/re
 - Admin CSS has minor styling issues on Render due to `django-cloudinary-storage` + Django 6.0 compatibility
 - Azure Free tier (F1) has 60 CPU min/day limit — may slow under heavy load
 - No email notifications for artifact approval/rejection
+- Colour contrast and landmark region accessibility issues tracked for future improvement
 
 ---
 
 ## 🔮 Future Enhancements
 
 - **Skill Suggestion** — Allow users to propose new skills for admin review and approval
+- Fix colour contrast and WCAG landmark violations for full WCAG 2 AA compliance
 - Email notifications on artifact status change
 - LinkedIn-style endorsements
 - OAuth login (Google, GitHub)
