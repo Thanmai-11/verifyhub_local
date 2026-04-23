@@ -22,7 +22,15 @@ VerifyHub is a full-stack Django web application where professionals upload evid
 | **Render** | https://verifyhub-wyep.onrender.com | ✅ Live |
 
 ---
+## 📸 Screenshots
 
+| Home | Dashboard |
+|------|-----------|
+| ![Home](screenshots/home.png) | ![Dashboard](screenshots/dashboard.png) |
+
+| Review Queue | Upload Proof |
+|--------------|--------------|
+| ![Review Queue](screenshots/review_queue.png) | ![Upload Proof](screenshots/upload_proof.png) |
 ## 📋 Table of Contents
 
 - [Features](#-features)
